@@ -23,13 +23,16 @@ module Fedex
         if success?(response)
           success_response(response)
         else
-          error_message = if response[:ground_close_reply]
-            [response[:ground_close_reply][:notifications]].flatten.first[:message]
+          error_code = error_message = ''
+          if response[:ground_close_reply]
+            first_notification = [response[:ground_close_reply][:notifications]].flatten.first
+            error_message = first_notification[:message]
+            error_code = first_notification[:code]
           else
-            "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n
-            --#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
+            error_code = api_response["Fault"]["detail"]["fault"]["errorCode"]
+            error_message = "#{api_response["Fault"]["detail"]["fault"]["reason"]} #{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join(', ')}"
           end rescue $1
-          raise RateError, error_message
+          raise RateError.new(error_message, error_code, api_response)
         end
       end
 
