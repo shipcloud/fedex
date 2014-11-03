@@ -50,22 +50,5 @@ require 'fedex/shipment'
 #        @rate_zone="51">
 module Fedex
   require 'fedex/version'
-  #Exceptions: Fedex::RateError
-  class RateError < StandardError
-    attr_accessor :api_response, :code
-
-    def initialize(message = nil, code = nil, api_response =  nil)
-      @code = code
-      @api_response = api_response
-      super(message)
-    end
-
-    def inspect
-      if code.present?
-        "#{code}: #{message}"
-      else
-        message
-      end
-    end
-  end
+  require 'fedex/error'
 end

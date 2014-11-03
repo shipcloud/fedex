@@ -371,7 +371,6 @@ module Fedex
       def success?(response)
         (!response[:rate_reply].nil? and %w{SUCCESS WARNING NOTE}.include? response[:rate_reply][:highest_severity])
       end
-
     end
   end
 end

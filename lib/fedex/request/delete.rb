@@ -19,16 +19,7 @@ module Fedex
         puts api_response if @debug == true
         response = parse_response(api_response)
         unless success?(response)
-          error_code = error_message = ''
-          if response[:shipment_reply]
-            first_notification = [response[:shipment_reply][:notifications]].flatten.first
-            error_message = first_notification[:message]
-            error_code = first_notification[:code]
-          else
-            error_code = api_response["Fault"]["detail"]["fault"]["errorCode"]
-            error_message = "#{api_response["Fault"]["detail"]["fault"]["reason"]} #{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join(', ')}"
-          end rescue $1
-          raise RateError.new(error_message, error_code, api_response)
+          fail(Fedex::Error.from_response(api_response))
         end
       end
 
