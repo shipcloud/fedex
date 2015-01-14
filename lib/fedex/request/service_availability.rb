@@ -20,9 +20,9 @@ module Fedex
         if success?(response)
           success_response(api_response, response)
         else
-          failure_response(api_response, response)
+          fail(Fedex::Error.from_response(api_response))
         end
-      end      
+      end
 
       def build_xml
         builder = Nokogiri::XML::Builder.new do |xml|
@@ -57,20 +57,11 @@ module Fedex
         xml.CarrierCode @carrier_code
       end
 
-      # Callback used after a failed shipment response.
-      def failure_response(api_response, response)
-        error_message = if response[:service_availability_reply]
-          [response[:service_availability_reply][:notifications]].flatten.first[:message]
-        else
-          "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"].join("\n--")}"
-        end rescue $1
-        raise RateError, error_message
-      end
 
       # Callback used after a successful shipment response.
       def success_response(api_response, response)
         @response_details = response[:service_availability_reply]
-      end      
+      end
 
       def service
         { :id => 'pmis', :version => Fedex::SERVICE_AVAILABILITY_API_VERSION }

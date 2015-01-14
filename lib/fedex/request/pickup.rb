@@ -26,7 +26,7 @@ module Fedex
         if success?(response)
           success_response(api_response, response)
         else
-          failure_response(api_response, response)
+          fail(Fedex::Error.from_response(api_response))
         end
       end
 
@@ -94,16 +94,6 @@ module Fedex
             xml.CountryCode @pickup_location[:country_code]
           }
         }
-      end
-
-      # Callback used after a failed pickup response.
-      def failure_response(api_response, response)
-        error_message = if response[:create_pickup_reply]
-          [response[:create_pickup_reply][:notifications]].flatten.first[:message]
-        else
-          "#{api_response["Fault"]["detail"]["fault"]["reason"]}\n--#{Array(api_response["Fault"]["detail"]["fault"]["details"]["ValidationFailureDetail"]["message"]).join("\n--")}"
-        end rescue $1
-        raise RateError, error_message
       end
 
       # Callback used after a successful pickup response.
