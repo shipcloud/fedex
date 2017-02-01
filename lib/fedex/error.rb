@@ -4,7 +4,6 @@ module Fedex
     attr_accessor :response, :code
 
     def self.from_response(response)
-      p "response:  #{response}"
       message, code = parse_error(response)
       new(message, code, response)
     end
