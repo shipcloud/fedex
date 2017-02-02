@@ -358,6 +358,8 @@ module Fedex
           response.inject({}) { |result, (key, value)| result[underscorize(key).to_sym] = sanitize_response_keys(value); result }
         elsif response.is_a?(Array)
           response.collect { |result| sanitize_response_keys(result) }
+        elsif response.is_a?(HTTParty::Response)
+          sanitize_response_keys(response.parsed_response)
         else
           response
         end
